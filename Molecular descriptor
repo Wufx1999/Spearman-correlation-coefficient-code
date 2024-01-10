@@ -10,7 +10,7 @@ from sklearn.feature_selection import VarianceThreshold
 from sklearn.ensemble import AdaBoostRegressor
 from sklearn.preprocessing import StandardScaler
 warnings.filterwarnings("ignore")
-data = pd.read_excel("Wu20231225.xlsx", index_col=0)
+data = pd.read_excel("Molecular descriptor.xlsx", index_col=0)
 print(data.shape)
 data.isnull().sum()
 data.dropna(axis=1,inplace=True)
