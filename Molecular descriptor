@@ -1,0 +1,77 @@
+import pandas as pd
+import numpy as np
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.model_selection import train_test_split
+import matplotlib.pyplot as plt
+from sklearn.metrics import r2_score
+import shap
+import warnings
+from sklearn.feature_selection import VarianceThreshold
+from sklearn.ensemble import AdaBoostRegressor
+from sklearn.preprocessing import StandardScaler
+warnings.filterwarnings("ignore")
+data = pd.read_excel("Wu20231225.xlsx", index_col=0)
+print(data.shape)
+data.isnull().sum()
+data.dropna(axis=1,inplace=True)
+print(data.shape)
+data_name = data.columns
+selector = VarianceThreshold(threshold=0) 
+data1 = selector.fit_transform(data)
+all_name = data.columns.values.tolist()  
+select_name_index0 = selector.get_support(indices=True)  
+select_name0 = []
+for i in select_name_index0:
+    select_name0.append(all_name[i])
+data2 = pd.DataFrame(data1)
+data2.columns = select_name0
+data = data2
+print(f'{"Variance Filtering"}', data.shape)
+X = data.iloc[:, :-4]
+Y_Alga = data.iloc[:, -4]
+Y_Plant = data.iloc[:, -3]
+Y_Microorganism = data.iloc[:, -2]
+Y_Substrate = data.iloc[:, -1]
+name = X.columns
+print(X.shape)
+X = data.iloc[:, :-4]
+y = data.iloc[:, -4:]
+
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+X_scaled_df = pd.DataFrame(X_scaled, columns=X.columns)
+
+combined_df = pd.concat([X_scaled_df, y], axis=1)
+
+spearman_corr = combined_df.corr(method='spearman')
+
+labels = y.columns
+top_features_per_label = {}
+
+for label in labels:
+    correlations = spearman_corr[label].drop(labels).abs().sort_values(ascending=False)
+
+    top_features = correlations.head(8)
+    top_features_per_label[label] = top_features
+
+for label, features in top_features_per_label.items():
+    print(f"Top 8 features for {label}:")
+    for feature, correlation in features.items():
+        print(f"{feature} with correlation {correlation:.4f}")
+X = data.iloc[:, :-4]
+y = data.iloc[:, -4:]
+
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+X_scaled_df = pd.DataFrame(X_scaled, columns=X.columns)
+
+combined_df = pd.concat([X_scaled_df, y], axis=1)
+
+spearman_corr = combined_df.corr(method='spearman')
+
+labels = y.columns
+top_features_per_label = {}
+
+for label in labels:
+    correlations = spearman_corr[label].drop(labels).sort_values(ascending=False)
+    print(correlations[0:8], "\n", correlations[-8:])
